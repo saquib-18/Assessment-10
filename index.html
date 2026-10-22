@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Agriculture & Irrigation Portal</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f6; }
+        h1, h2 { color: #2c3e50; }
+        .card { background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #27ae60; color: white; }
+        .alert { color: red; font-weight: bold; }
+        .ok { color: green; font-weight: bold; }
+        .controls { margin-bottom: 15px; }
+        select, input { padding: 8px; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Smart Agriculture & Irrigation Portal</h1>
+
+    <!-- Summary & Analytics Section -->
+    <div class="card">
+        <h2>Analytics & Optimization</h2>
+        <p><strong>Total Water Consumption:</strong> <span id="totalWater">0</span> Liters/day</p>
+        <p><strong>Field with Lowest Soil Moisture:</strong> <span id="lowestMoisture">N/A</span></p>
+        <p><strong>Water-Saving Target:</strong> 15% Reduction Target (Status: <span class="ok">On Track</span>)</p>
+    </div>
+
+    <!-- Controls & Filtering -->
+    <div class="card controls">
+        <label for="cropFilter">Filter by Crop Type: </label>
+        <select id="cropFilter" onchange="renderDashboard()">
+            <option value="All">All Crops</option>
+            <option value="Wheat">Wheat</option>
+            <option value="Rice">Rice</option>
+            <option value="Corn">Corn</option>
+            <option value="Sugarcane">Sugarcane</option>
+            <option value="Cotton">Cotton</option>
+        </select>
+    </div>
+
+    <!-- Main Dashboard Table -->
+    <div class="card">
+        <h2>Field Monitoring Status</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field ID</th>
+                    <th>Crop Type</th>
+                    <th>Soil Moisture (%)</th>
+                    <th>Daily Water Use (L)</th>
+                    <th>Temperature (°C)</th>
+                    <th>Next Schedule</th>
+                    <th>Crop Health</th>
+                    <th>Irrigation Alert / Status</th>
+                </tr>
+            </thead>
+            <tbody id="fieldTable"></tbody>
+        </table>
+    </div>
+
+    <!-- Prioritized Recommendations -->
+    <div class="card">
+        <h2>Prioritized Irrigation Recommendations</h2>
+        <ul id="recommendationList"></ul>
+    </div>
+
+    <script>
+        const fields = [
+            { id: "FLD-01", crop: "Wheat", moisture: 25, water: 1200, temp: 32, schedule: "Immediate", health: "Fair" },
+            { id: "FLD-02", crop: "Rice", moisture: 55, water: 3000, temp: 29, schedule: "Tomorrow 06:00 AM", health: "Good" },
+            { id: "FLD-03", crop: "Corn", moisture: 18, water: 1500, temp: 35, schedule: "Immediate", health: "Stressed" },
+            { id: "FLD-04", crop: "Sugarcane", moisture: 42, water: 2500, temp: 30, schedule: "In 2 Days", health: "Excellent" },
+            { id: "FLD-05", crop: "Cotton", moisture: 28, water: 1100, temp: 33, schedule: "Immediate", health: "Fair" }
+        ];
+
+        function renderDashboard() {
+            const filter = document.getElementById("cropFilter").value;
+            const tableBody = document.getElementById("fieldTable");
+            const recList = document.getElementById("recommendationList");
+            
+            tableBody.innerHTML = "";
+            recList.innerHTML = "";
+
+            let totalWater = 0;
+            let lowestMoistureField = fields[0];
+
+            fields.forEach(field => {
+                if (filter === "All" || field.crop === filter) {
+                    totalWater += field.water;
+
+                    if (field.moisture < lowestMoistureField.moisture) {
+                        lowestMoistureField = field;
+                    }
+
+                    const isAlert = field.moisture < 30;
+                    const alertText = isAlert ? "<span class='alert'>ALERT: Irrigation Required</span>" : "<span class='ok'>Normal</span>";
+
+                    const row = `<tr>
+                        <td>${field.id}</td>
+                        <td>${field.crop}</td>
+                        <td>${field.moisture}%</td>
+                        <td>${field.water}</td>
+                        <td>${field.temp}°C</td>
+                        <td>${field.schedule}</td>
+                        <td>${field.health}</td>
+                        <td>${alertText}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+
+                    if (isAlert) {
+                        const li = `<li><strong>${field.id} (${field.crop}):</strong> Moisture is critically low (${field.moisture}%). Initiate watering immediately. Completion status: Pending.</li>`;
+                        recList.innerHTML += li;
+                    }
+                }
+            });
+
+            document.getElementById("totalWater").innerText = totalWater;
+            document.getElementById("lowestMoisture").innerText = `${lowestMoistureField.id} (${lowestMoistureField.moisture}%)`;
+        }
+
+        renderDashboard();
+    </script>
+</body>
+</html>
