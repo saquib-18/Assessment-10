@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: smart-agri-container
-        image: saquib2006/smart-agri-app:v1.0
+        image: saquib2006/smart-agri-app:invalid-tag
         ports:
         - containerPort: 80
 ---
